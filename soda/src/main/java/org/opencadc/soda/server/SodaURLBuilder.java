@@ -69,16 +69,20 @@
 
 package org.opencadc.soda.server;
 
+import ca.nrc.cadc.dali.Interval;
+import ca.nrc.cadc.dali.Shape;
+import ca.nrc.cadc.dali.util.IntervalFormat;
+import ca.nrc.cadc.dali.util.ShapeFormat;
+import ca.nrc.cadc.dali.util.StringListFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.opencadc.alma.AlmaProperties;
 import org.opencadc.alma.deliverable.DeliverableURLBuilder;
 import org.opencadc.alma.deliverable.HierarchyItem;
 
-import ca.nrc.cadc.dali.Interval;
-import ca.nrc.cadc.dali.Shape;
 import ca.nrc.cadc.net.NetUtil;
 import ca.nrc.cadc.util.StringUtil;
+import org.opencadc.soda.SodaParamValidator;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -93,34 +97,58 @@ public class SodaURLBuilder extends DeliverableURLBuilder {
         super(almaProperties);
     }
 
-    public URL createCutoutURL(final HierarchyItem hierarchyItem, Cutout<Shape> pos, Cutout<Interval> band,
-                               Cutout<Interval> time, Cutout<List<String>> pol) throws MalformedURLException {
+    public URL createCutoutURL(final HierarchyItem hierarchyItem, final Cutout cutout) throws MalformedURLException {
         final URL downloadURL = createDownloadURL(hierarchyItem);
-
-        URL cutoutURL = toCutoutURL(downloadURL, pos);
-        cutoutURL = toCutoutURL(cutoutURL, band);
-        cutoutURL = toCutoutURL(cutoutURL, time);
-        cutoutURL = toCutoutURL(cutoutURL, pol);
-        return cutoutURL;
+        return toCutoutURL(downloadURL, cutout);
     }
 
-    private URL toCutoutURL(final URL downloadURL, Cutout<?> cutout) throws MalformedURLException {
-        if ((cutout == null) || (cutout.value == null)) {
-            return downloadURL;
-        } else {
-            final String queryParam = NetUtil.encode(String.format("%s=%s", cutout.name, cutout.value));
-            final StringBuilder cutoutURLString = new StringBuilder(downloadURL.toExternalForm());
+    private URL toCutoutURL(final URL downloadURL, final Cutout cutout) throws MalformedURLException {
+        final StringBuilder queryStringBuilder = new StringBuilder();
+        final StringBuilder urlStringBuilder = new StringBuilder(downloadURL.toExternalForm());
+
+        if (cutout.pos != null) {
+            queryStringBuilder.append(NetUtil.encode(format(cutout.pos)));
+        }
+
+        if (cutout.band != null) {
+            queryStringBuilder.append(String.format("%s=%s", SodaParamValidator.BAND.toLowerCase(),
+                                                    NetUtil.encode(format(cutout.band))));
+        }
+
+        if (cutout.time != null) {
+            queryStringBuilder.append(String.format("%s=%s", SodaParamValidator.TIME.toLowerCase(),
+                                                    NetUtil.encode(format(cutout.time))));
+        }
+
+        if (cutout.pol != null && !cutout.pol.isEmpty()) {
+            queryStringBuilder.append(String.format("%s=%s", SodaParamValidator.POL.toLowerCase(),
+                                                    NetUtil.encode(format(cutout.pol))));
+        }
+
+        if (queryStringBuilder.length() > 0) {
             if (StringUtil.hasText(downloadURL.getQuery())) {
-                cutoutURLString.append("&");
+                urlStringBuilder.append("&");
             } else {
-                cutoutURLString.append("?");
+                urlStringBuilder.append("?");
             }
 
-            cutoutURLString.append(queryParam);
-
-            LOGGER.debug(String.format("CutoutURL from %s is %s.", cutout, cutoutURLString));
-
-            return new URL(cutoutURLString.toString());
+            urlStringBuilder.append(queryStringBuilder.toString());
         }
+
+        LOGGER.debug(String.format("CutoutURL from %s is %s.", cutout, urlStringBuilder.toString()));
+
+        return new URL(urlStringBuilder.toString());
+    }
+
+    private String format(final Shape shape) {
+        return new ShapeFormat(true).format(shape);
+    }
+
+    private String format(final Interval<?> interval) {
+        return new IntervalFormat().format(interval);
+    }
+
+    private String format(final List<String> stringList) {
+        return new StringListFormat().format(stringList);
     }
 }

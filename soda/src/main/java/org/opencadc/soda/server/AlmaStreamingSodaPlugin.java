@@ -97,53 +97,18 @@ public class AlmaStreamingSodaPlugin implements StreamingSodaPlugin, SodaPlugin 
     }
 
 
-    /**
-     * Perform cutout operation and write output.
-     *
-     * @param uri           the ID value that identifies the data (file)
-     * @param pos           optional position cutout (may be null)
-     * @param band          optional energy cutout (may be null)
-     * @param time          optional time cutout (may be null)
-     * @param pol           optional polarization cutout (may be null)
-     * @param customCutouts list of orthogonal cutouts of custom axes (may be empty)
-     * @param customParams  custom parameters and values (may be empty)
-     * @param out           wrapper for setting output properties (HTTP headers) and opening the OutputStream
-     * @throws IOException failure to read or write data
-     */
     @Override
-    public void write(URI uri, Cutout<Shape> pos, Cutout<Interval> band, Cutout<Interval> time,
-                      Cutout<List<String>> pol, List<Cutout<Interval>> customCutouts,
-                      Map<String, List<String>> customParams, SyncOutput out) throws IOException {
-        final URL cutoutURL = toURL(1, uri, pos, band, time, pol, customCutouts, customParams);
-        final HttpGet httpGet = createDownloader(cutoutURL, out.getOutputStream());
+    public void write(URI uri, Cutout cutout, Map<String, List<String>> map, SyncOutput syncOutput) throws IOException {
+        final URL cutoutURL = toURL(1, uri, cutout, map);
+        final HttpGet httpGet = createDownloader(cutoutURL, syncOutput.getOutputStream());
         httpGet.run();
     }
 
-    /**
-     * Convert a cutout request to a specific data (file) to a URL for the result.
-     * The URL could be to an on-the-fly cutout backend (for SODA-sync) or the plugin
-     * method could retrieve data, perform the cutout operation, store the result
-     * in temporary storage, and return a URL to the result (SODA-async).
-     *
-     * @param serialNum     number that increments for each call to the plugin within a single request
-     * @param uri           the ID value that identifies the data (file)
-     * @param pos           optional position cutout (may be null)
-     * @param band          optional energy cutout (may be null)
-     * @param time          optional time cutout (may be null)
-     * @param pol           optional polarization cutout (may be null)
-     * @param customCutouts list of orthogonal cutouts of custom axes (may be empty)
-     * @param customParams  custom parameters and values (may be empty)
-     * @return a URL to the result of the operation
-     *
-     * @throws IOException failure to read or write data
-     */
     @Override
-    public URL toURL(int serialNum, URI uri, Cutout<Shape> pos, Cutout<Interval> band, Cutout<Interval> time,
-                     Cutout<List<String>> pol, List<Cutout<Interval>> customCutouts,
-                     Map<String, List<String>> customParams) throws IOException {
+    public URL toURL(int i, URI uri, Cutout cutout, Map<String, List<String>> map) throws IOException {
         final AlmaUID almaUID = new AlmaUID(uri.toString());
         final HierarchyItem hierarchyItem = requestHandlerQuery.query(almaUID);
-        return sodaURLBuilder.createCutoutURL(hierarchyItem, pos, band, time, pol);
+        return sodaURLBuilder.createCutoutURL(hierarchyItem, cutout);
     }
 
     HttpGet createDownloader(final URL url, final OutputStream outputStream) {
