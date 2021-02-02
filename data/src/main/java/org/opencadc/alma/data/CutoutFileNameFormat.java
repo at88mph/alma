@@ -3,7 +3,7 @@
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2020.                            (c) 2020.
+ *  (c) 2021.                            (c) 2021.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -68,34 +68,72 @@
 
 package org.opencadc.alma.data;
 
-import ca.nrc.cadc.rest.InlineContentHandler;
-import ca.nrc.cadc.rest.RestAction;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import ca.nrc.cadc.util.StringUtil;
+import org.opencadc.soda.ExtensionSlice;
+import org.opencadc.soda.PixelRange;
 
-import java.io.File;
-import java.util.Collections;
 import java.util.List;
 
 
-public abstract class BaseAction extends RestAction {
-    private static final Logger LOGGER = LogManager.getLogger(BaseAction.class);
+/**
+ * Calculate an appropriate output filename based on some requested cutout specification.
+ */
+public class CutoutFileNameFormat {
+    private static final String OUTPUT_DELIMITER = "_";
+    private final String originalFileName;
 
 
-    @Override
-    protected InlineContentHandler getInlineContentHandler() {
-        return null;
+    public CutoutFileNameFormat(final String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 
-    protected File getFile() {
-        final String requestedFilePath = syncInput.getParameter("file");
-        LOGGER.debug("Searching for file " + requestedFilePath);
+    /**
+     * Obtain a new file name based on the provided slices.  This is done by replacing values with underscores, and then
+     * inserting this underscore value into the file name after the last period.
+     * @param slices    The slices to use as format elements.
+     * @return      New filename String.  Never null.
+     */
+    public String format(final List<ExtensionSlice> slices) {
+        final StringBuilder appendage = new StringBuilder();
 
-        return new File(requestedFilePath);
-    }
+        for (final ExtensionSlice slice : slices) {
+            if (slice.extensionIndex != null) {
+                appendage.append(slice.extensionIndex);
+            } else if (StringUtil.hasLength(slice.extensionName)) {
+                appendage.append(slice.extensionName);
+                if (slice.extensionVersion != null) {
+                    appendage.append(OUTPUT_DELIMITER).append(slice.extensionVersion);
+                }
+            } else {
+                // Assume the default extension, which is zero.
+                appendage.append(0);
+            }
 
-    protected List<String> getParametersNullSafe(final String key) {
-        final List<String> params = syncInput.getParameters(key);
-        return (params == null) ? Collections.emptyList() : params;
+            // Double underscore to separate extension from pixel ranges.
+            appendage.append(OUTPUT_DELIMITER).append(OUTPUT_DELIMITER);
+
+            for (final PixelRange pixelRange : slice.getPixelRanges()) {
+                // Indicates ALL (*) value
+                if (pixelRange.upperBound == Integer.MAX_VALUE) {
+                    appendage.append(OUTPUT_DELIMITER);
+                } else {
+                    appendage.append(pixelRange.lowerBound).append(OUTPUT_DELIMITER).append(pixelRange.upperBound);
+                }
+
+                appendage.append(OUTPUT_DELIMITER);
+            }
+
+            appendage.append(OUTPUT_DELIMITER).append(OUTPUT_DELIMITER);
+        }
+
+        // Strip off last underscore.
+        while (appendage.lastIndexOf(OUTPUT_DELIMITER) == (appendage.length() - 1)) {
+            appendage.deleteCharAt(appendage.lastIndexOf(OUTPUT_DELIMITER));
+        }
+
+        final StringBuilder fileBuilder = new StringBuilder(originalFileName);
+        fileBuilder.insert(fileBuilder.lastIndexOf(".") + 1, appendage.toString() + ".");
+
+        return fileBuilder.toString();
     }
 }

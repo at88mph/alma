@@ -68,6 +68,8 @@
 
 package org.opencadc.alma.data.fits;
 
+import ca.nrc.cadc.net.HttpTransfer;
+import ca.nrc.cadc.net.ResourceNotFoundException;
 import ca.nrc.cadc.util.StringUtil;
 import nom.tam.fits.Header;
 import nom.tam.util.ArrayDataOutput;
@@ -77,13 +79,12 @@ import nom.tam.util.RandomAccessFileExt;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.opencadc.alma.data.BaseAction;
+import org.opencadc.alma.data.CutoutFileNameFormat;
 import org.opencadc.fits.FitsOperations;
 import org.opencadc.soda.ExtensionSlice;
 import org.opencadc.soda.SodaParamValidator;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -97,6 +98,7 @@ public class FITSAction extends BaseAction {
     private final Logger LOGGER = LogManager.getLogger(FITSAction.class);
     private static final SodaParamValidator SODA_PARAM_VALIDATOR = new SodaParamValidator();
     private static final String CUTOUT_PARAMETER_KEY = SodaParamValidator.SUB;
+    private static final String CONTENT_DISPOSITION = "Content-Disposition";
 
 
     void throwUsageError() {
@@ -156,19 +158,24 @@ public class FITSAction extends BaseAction {
             final Map<String, List<String>> subMap = new HashMap<>();
             subMap.put(CUTOUT_PARAMETER_KEY, requestedSubs);
             final List<ExtensionSlice> slices = SODA_PARAM_VALIDATOR.validateSUB(subMap);
+            final CutoutFileNameFormat cutoutFileNameFormat = new CutoutFileNameFormat(getFile().getName());
 
             try (final RandomAccessDataObject randomAccessDataObject = getRandomAccessDataObject()) {
                 final FitsOperations fitsOperations = getOperator(randomAccessDataObject);
+                syncOutput.setHeader(CONTENT_DISPOSITION, "inline; filename=\""
+                                                          + cutoutFileNameFormat.format(slices) + "\"");
+                syncOutput.setHeader(HttpTransfer.CONTENT_TYPE, "application/fits");
                 fitsOperations.cutoutToStream(slices, syncOutput.getOutputStream());
             }
             LOGGER.debug("FitsOperations.cutout: OK");
         } else {
             // If nothing is provided, then simply write the entire file out.
-            try (final InputStream inputStream = new FileInputStream(getFile())) {
+            try (final RandomAccessDataObject randomAccessDataObject = getRandomAccessDataObject()) {
                 final OutputStream outputStream = syncOutput.getOutputStream();
-                final byte[] buffer = new byte[64 * 1024]; // 64KB buffer has proven a good performance size.
+                final int bufferSize = 64 * 1024; // 64KB buffer has proven a good performance size.
+                final byte[] buffer = new byte[bufferSize];
                 int byteCount;
-                while ((byteCount = inputStream.read(buffer)) >= 0) {
+                while ((byteCount = randomAccessDataObject.read(buffer)) >= 0) {
                     outputStream.write(buffer, 0, byteCount);
                 }
 
@@ -186,7 +193,11 @@ public class FITSAction extends BaseAction {
         return new FitsOperations(randomAccessDataObject);
     }
 
-    RandomAccessDataObject getRandomAccessDataObject() throws FileNotFoundException {
-        return new RandomAccessFileExt(getFile(), "r");
+    RandomAccessDataObject getRandomAccessDataObject() throws ResourceNotFoundException {
+        try {
+            return new RandomAccessFileExt(getFile(), "r");
+        } catch (FileNotFoundException fileNotFoundException) {
+            throw new ResourceNotFoundException(fileNotFoundException.getMessage());
+        }
     }
 }
