@@ -82,6 +82,9 @@ import org.opencadc.alma.deliverable.HierarchyItem;
 
 import ca.nrc.cadc.net.NetUtil;
 import ca.nrc.cadc.util.StringUtil;
+import org.opencadc.soda.Cutout;
+import org.opencadc.soda.ExtensionSlice;
+import org.opencadc.soda.ExtensionSliceFormat;
 import org.opencadc.soda.SodaParamValidator;
 
 import java.net.MalformedURLException;
@@ -107,7 +110,8 @@ public class SodaURLBuilder extends DeliverableURLBuilder {
         final StringBuilder urlStringBuilder = new StringBuilder(downloadURL.toExternalForm());
 
         if (cutout.pos != null) {
-            queryStringBuilder.append(NetUtil.encode(format(cutout.pos)));
+            queryStringBuilder.append(String.format("%s=%s", cutout.pos.getClass().getSimpleName().toLowerCase(),
+                                                    NetUtil.encode(format(cutout.pos))));
         }
 
         if (cutout.band != null) {
@@ -125,6 +129,12 @@ public class SodaURLBuilder extends DeliverableURLBuilder {
                                                     NetUtil.encode(format(cutout.pol))));
         }
 
+        final ExtensionSliceFormat extensionSliceFormat = new ExtensionSliceFormat();
+        for (final ExtensionSlice extensionSlice : cutout.extensionSlices) {
+            queryStringBuilder.append(String.format("%s=%s", SodaParamValidator.SUB.toLowerCase(),
+                                                    NetUtil.encode(extensionSliceFormat.format(extensionSlice))));
+        }
+
         if (queryStringBuilder.length() > 0) {
             if (StringUtil.hasText(downloadURL.getQuery())) {
                 urlStringBuilder.append("&");
@@ -140,8 +150,14 @@ public class SodaURLBuilder extends DeliverableURLBuilder {
         return new URL(urlStringBuilder.toString());
     }
 
+    /**
+     * Format the Shape's value, but remove the class name that is prepended.
+     * @param shape The Shape to format.
+     * @return  String value
+     */
     private String format(final Shape shape) {
-        return new ShapeFormat(true).format(shape);
+        return new ShapeFormat(true).format(shape).substring(
+                shape.getClass().getSimpleName().length()).trim();
     }
 
     private String format(final Interval<?> interval) {

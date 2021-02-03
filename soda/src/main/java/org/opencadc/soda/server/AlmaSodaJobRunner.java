@@ -67,22 +67,23 @@
  ************************************************************************
  */
 
-package org.opencadc.soda;
+package org.opencadc.soda.server;
 
 
 import org.opencadc.alma.AlmaProperties;
 import org.opencadc.alma.deliverable.RequestHandlerQuery;
-import org.opencadc.soda.server.AbstractSodaJobRunner;
-import org.opencadc.soda.server.AlmaStreamingSodaPlugin;
-import org.opencadc.soda.server.SodaPlugin;
-import org.opencadc.soda.server.SodaURLBuilder;
+import org.opencadc.soda.ExtensionSlice;
+import org.opencadc.soda.ExtensionSliceFormat;
+import org.opencadc.soda.SodaParamValidator;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class AlmaSodaJobRunner extends AbstractSodaJobRunner {
 
-    private static final String ALMA_REQUEST_HANDLER_RESOURCE_ID_KEY = "almaRequestHandlerResourceID";
+    private static final String ALMA_REQUEST_HANDLER_SERVICE_URI_KEY = "almaRequestHandlerServiceURI";
     private final AlmaProperties almaProperties;
 
 
@@ -96,7 +97,18 @@ public class AlmaSodaJobRunner extends AbstractSodaJobRunner {
 
     @Override
     public SodaPlugin getSodaPlugin() {
-        return new AlmaStreamingSodaPlugin(createRequestHandlerQuery(), createDeliverableURLBuilder());
+        return new AlmaStreamingSodaPlugin(createRequestHandlerQuery(), createDeliverableURLBuilder(),
+                                           getExtensionSlices());
+    }
+
+    List<ExtensionSlice> getExtensionSlices() {
+        final List<ExtensionSlice> extensionSliceList = new ArrayList<>();
+        final ExtensionSliceFormat extensionSliceFormat = new ExtensionSliceFormat();
+        job.getParameterList().stream().
+                filter(parameter -> parameter.getName().equalsIgnoreCase(SodaParamValidator.SUB)).
+                   forEach(parameter -> extensionSliceList.add(extensionSliceFormat.parse(parameter.getValue())));
+
+        return extensionSliceList;
     }
 
     SodaURLBuilder createDeliverableURLBuilder() {
@@ -105,7 +117,7 @@ public class AlmaSodaJobRunner extends AbstractSodaJobRunner {
 
     private RequestHandlerQuery createRequestHandlerQuery() {
         final String configuredResourceID =
-                almaProperties.getFirstPropertyValue(ALMA_REQUEST_HANDLER_RESOURCE_ID_KEY, null);
+                almaProperties.getFirstPropertyValue(ALMA_REQUEST_HANDLER_SERVICE_URI_KEY, null);
         return new RequestHandlerQuery(URI.create(configuredResourceID));
     }
 }

@@ -72,15 +72,15 @@ package org.opencadc.soda.server;
 import org.opencadc.alma.AlmaUID;
 import org.opencadc.alma.deliverable.HierarchyItem;
 import org.opencadc.alma.deliverable.RequestHandlerQuery;
-import ca.nrc.cadc.dali.Interval;
-import ca.nrc.cadc.dali.Shape;
 import ca.nrc.cadc.net.HttpGet;
 import ca.nrc.cadc.rest.SyncOutput;
+import org.opencadc.soda.ExtensionSlice;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -89,17 +89,22 @@ public class AlmaStreamingSodaPlugin implements StreamingSodaPlugin, SodaPlugin 
 
     private final RequestHandlerQuery requestHandlerQuery;
     private final SodaURLBuilder sodaURLBuilder;
+    private final List<ExtensionSlice> cutoutSpecs = new ArrayList<>();
 
 
-    public AlmaStreamingSodaPlugin(final RequestHandlerQuery requestHandlerQuery, final SodaURLBuilder sodaURLBuilder) {
+    public AlmaStreamingSodaPlugin(final RequestHandlerQuery requestHandlerQuery, final SodaURLBuilder sodaURLBuilder,
+                                   final List<ExtensionSlice> cutoutSpecs) {
         this.requestHandlerQuery = requestHandlerQuery;
         this.sodaURLBuilder = sodaURLBuilder;
+        if (cutoutSpecs != null) {
+            this.cutoutSpecs.addAll(cutoutSpecs);
+        }
     }
 
 
     @Override
     public void write(URI uri, Cutout cutout, Map<String, List<String>> map, SyncOutput syncOutput) throws IOException {
-        final URL cutoutURL = toURL(1, uri, cutout, map);
+        final URL cutoutURL = toURL(-1, uri, cutout, map);
         final HttpGet httpGet = createDownloader(cutoutURL, syncOutput.getOutputStream());
         httpGet.run();
     }
@@ -108,7 +113,10 @@ public class AlmaStreamingSodaPlugin implements StreamingSodaPlugin, SodaPlugin 
     public URL toURL(int i, URI uri, Cutout cutout, Map<String, List<String>> map) throws IOException {
         final AlmaUID almaUID = new AlmaUID(uri.toString());
         final HierarchyItem hierarchyItem = requestHandlerQuery.query(almaUID);
-        return sodaURLBuilder.createCutoutURL(hierarchyItem, cutout);
+        final org.opencadc.soda.Cutout localCutout = org.opencadc.soda.Cutout.wrap(cutout);
+        localCutout.extensionSlices.addAll(this.cutoutSpecs);
+
+        return sodaURLBuilder.createCutoutURL(hierarchyItem, localCutout);
     }
 
     HttpGet createDownloader(final URL url, final OutputStream outputStream) {

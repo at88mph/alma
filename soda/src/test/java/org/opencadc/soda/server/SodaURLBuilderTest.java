@@ -69,6 +69,7 @@
 
 package org.opencadc.soda.server;
 
+import ca.nrc.cadc.net.NetUtil;
 import org.opencadc.alma.AlmaProperties;
 
 import ca.nrc.cadc.dali.Circle;
@@ -83,6 +84,8 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.Assert;
 import org.opencadc.alma.deliverable.HierarchyItem;
+import org.opencadc.soda.Cutout;
+import org.opencadc.soda.ExtensionSliceFormat;
 
 import static org.mockito.Mockito.*;
 
@@ -109,7 +112,7 @@ public class SodaURLBuilderTest {
         when(mockAlmaProperties.getFirstPropertyValue("downloadPath", null)).thenReturn("/sodacutout/download");
 
         final URL expectedURL = new URL(
-                "https://almaservices.com/sodacutout/download/1977.11.25_uid___C1_C2_C3.fits?circle+12.0+56.0+0.6");
+                "https://almaservices.com/sodacutout/download/1977.11.25_uid___C1_C2_C3.fits?circle=12.0+56.0+0.6");
         final URL resultURL = testSubject.createCutoutURL(mockHierarchyItem, cutout);
         Assert.assertEquals("Wrong cutout URL.", expectedURL, resultURL);
 
@@ -141,7 +144,7 @@ public class SodaURLBuilderTest {
 
         final URL expectedURL = new URL(
                 "https://almaservices.com/sodacutout/download/1977.11.25_uid___C1_C2_C3.fits"
-                + "?polygon+12.4+56.7+5.6+44.5+18.3+33.5");
+                + "?polygon=12.4+56.7+5.6+44.5+18.3+33.5");
         final URL resultURL = testSubject.createCutoutURL(mockHierarchyItem, shapeCutout);
         Assert.assertEquals("Wrong cutout URL.", expectedURL, resultURL);
 
@@ -176,5 +179,31 @@ public class SodaURLBuilderTest {
         verify(mockAlmaProperties, times(1)).getFirstPropertyValue("downloadPath", null);
         verify(mockHierarchyItem, times(1)).getName();
         verify(mockHierarchyItem, times(1)).getType();
+    }
+
+    @Test
+    public void createPixelCutoutURL() throws Exception {
+        final AlmaProperties mockAlmaProperties = mock(AlmaProperties.class);
+        final HierarchyItem mockHierarchyItem = mock(HierarchyItem.class);
+        final ExtensionSliceFormat extensionSliceFormat = new ExtensionSliceFormat();
+        final Cutout cutout = new Cutout();
+        cutout.extensionSlices.add(extensionSliceFormat.parse("[0][100:300,800:1100,*]"));
+
+        final SodaURLBuilder testSubject = new SodaURLBuilder(mockAlmaProperties);
+
+        when(mockHierarchyItem.getNullSafeId(true)).thenReturn("1977.11.25_uid___C1_C2_C3.fits");
+
+        when(mockAlmaProperties.getFirstPropertyValue("secureSchemeHost", null)).thenReturn("https://almaservices.com");
+        when(mockAlmaProperties.getFirstPropertyValue("downloadPath", null)).thenReturn("/sodacutout/download");
+
+        final URL expectedURL = new URL(
+                "https://almaservices.com/sodacutout/download/1977.11.25_uid___C1_C2_C3.fits?sub="
+                + NetUtil.encode("[0][100:300,800:1100,*]"));
+        final URL resultURL = testSubject.createCutoutURL(mockHierarchyItem, cutout);
+        Assert.assertEquals("Wrong cutout URL.", expectedURL, resultURL);
+
+        verify(mockAlmaProperties, times(1)).getFirstPropertyValue("secureSchemeHost", null);
+        verify(mockAlmaProperties, times(1)).getFirstPropertyValue("downloadPath", null);
+        verify(mockHierarchyItem, times(1)).getNullSafeId(true);
     }
 }

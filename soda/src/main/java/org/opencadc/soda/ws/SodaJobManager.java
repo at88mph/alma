@@ -69,7 +69,7 @@
 
 package org.opencadc.soda.ws;
 
-import org.opencadc.soda.AlmaSodaJobRunner;
+import org.opencadc.soda.server.AlmaSodaJobRunner;
 import ca.nrc.cadc.uws.server.JobExecutor;
 import ca.nrc.cadc.uws.server.MemoryJobPersistence;
 import ca.nrc.cadc.uws.server.SimpleJobManager;

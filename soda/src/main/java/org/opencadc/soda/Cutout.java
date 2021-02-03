@@ -1,10 +1,9 @@
-
 /*
  ************************************************************************
  *******************  CANADIAN ASTRONOMY DATA CENTRE  *******************
  **************  CENTRE CANADIEN DE DONNÉES ASTRONOMIQUES  **************
  *
- *  (c) 2019.                            (c) 2019.
+ *  (c) 2021.                            (c) 2021.
  *  Government of Canada                 Gouvernement du Canada
  *  National Research Council            Conseil national de recherches
  *  Ottawa, Canada, K1A 0R6              Ottawa, Canada, K1A 0R6
@@ -67,58 +66,40 @@
  ************************************************************************
  */
 
-package org.opencadc.soda.server;
+package org.opencadc.soda;
 
-import ca.nrc.cadc.dali.Circle;
-import ca.nrc.cadc.dali.Point;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
-import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
+public class Cutout extends org.opencadc.soda.server.Cutout {
+    public final List<ExtensionSlice> extensionSlices = new ArrayList<>();
 
-import static org.mockito.Mockito.*;
+    public Cutout() {
+    }
 
-import org.junit.Test;
-import org.junit.Assert;
-import org.opencadc.alma.AlmaUID;
-import org.opencadc.alma.deliverable.HierarchyItem;
-import org.opencadc.alma.deliverable.RequestHandlerQuery;
-import org.opencadc.soda.Cutout;
+    public static Cutout wrap(org.opencadc.soda.server.Cutout sodaCutout) {
+        final Cutout newCutout = new Cutout();
 
+        newCutout.band = sodaCutout.band;
+        newCutout.time = sodaCutout.time;
+        newCutout.pos = sodaCutout.pos;
+        newCutout.pol = sodaCutout.pol;
+        newCutout.customAxis = sodaCutout.customAxis;
+        newCutout.custom = sodaCutout.custom;
 
-public class AlmaStreamingSodaPluginTest {
+        return newCutout;
+    }
 
-    @Test
-    public void simpleCutoutURL() throws Throwable {
-        final RequestHandlerQuery mockRequestHandlerQuery = mock(RequestHandlerQuery.class);
-        final SodaURLBuilder mockSodaURLBuilder = mock(SodaURLBuilder.class);
-        final AlmaStreamingSodaPlugin testSubject = new AlmaStreamingSodaPlugin(mockRequestHandlerQuery,
-                                                                                mockSodaURLBuilder,
-                                                                                Collections.emptyList());
-        final String targetParentUid = "uid://C1/C2/C3";
-        final URI targetURI = URI.create("1977.11.25_uid___C1_C2_C3.myfile.fits");
-        final AlmaUID targetAlmaUID = new AlmaUID(targetURI.toString());
-        final Circle circle = new Circle(new Point(18.0D, 78.5D), 0.5D);
-        final Cutout cutout = new Cutout();
-        cutout.pos = circle;
-
-        final HierarchyItem hierarchyItem = new HierarchyItem(new AlmaUID(targetParentUid), targetAlmaUID.toString(),
-                                                              "myfile.fits", HierarchyItem.Type.ASDM,
-                                                              88L, true,
-                                                              new HierarchyItem[0], new AlmaUID[0]);
-
-        when(mockRequestHandlerQuery.query(targetAlmaUID)).thenReturn(hierarchyItem);
-        when(mockSodaURLBuilder.createCutoutURL(hierarchyItem, cutout)).thenReturn(
-                new URL("https://almaserver.com/sodacutout/downloads/1977.11.25_uid___C1_C2_C3.myfile.fits?CIRCLE=18" +
-                        ".0+78.5+0.5"));
-
-        final URL cutoutURL = testSubject.toURL(88, targetURI, cutout, Collections.emptyMap());
-
-        Assert.assertEquals("Wrong result URL.",
-                            "https://almaserver.com/sodacutout/downloads/1977.11.25_uid___C1_C2_C3.myfile" +
-                            ".fits?CIRCLE=18.0+78.5+0.5",
-                            cutoutURL.toExternalForm());
-
-        verify(mockRequestHandlerQuery, times(1)).query(targetAlmaUID);
+    @Override
+    public boolean equals(Object obj) {
+        final Cutout other = (Cutout) obj;
+        return this.band == other.band
+               && this.time == other.time
+               && this.pos == other.pos
+               && this.pol == other.pol
+               && Objects.equals(this.customAxis, other.customAxis)
+               && this.custom == other.custom
+               && extensionSlices.equals(other.extensionSlices);
     }
 }
