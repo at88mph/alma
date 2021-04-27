@@ -100,7 +100,7 @@ CREATE OR REPLACE FORCE VIEW obscore (
     science.gal_latitude,
     science.band_list,
     -- Convert frequency_resolution to metres as per ObsCore expectations.
-    CASE WHEN science.frequency_resolution IS NOT NULL THEN (science.frequency_resolution * 2.99792458e+11) ELSE NULL END,
+    CASE WHEN science.frequency_resolution IS NOT NULL THEN (2.99792458e+5 / science.frequency_resolution) ELSE NULL END,
     energy.bandwidth,
     science.antennas,
     CASE WHEN science.is_mosaic = 'Y' THEN 'T' ELSE 'F' END,
