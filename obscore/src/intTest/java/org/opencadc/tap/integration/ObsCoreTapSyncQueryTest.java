@@ -91,7 +91,7 @@ public class ObsCoreTapSyncQueryTest extends TapSyncQueryTest {
     }
 
     public ObsCoreTapSyncQueryTest() {
-        super(URI.create("ivo://cadc.nrc.ca/tap"));
+        super(URI.create("ivo://almascience.org/tap"));
 
         // re-use SyncResultTest files
         File testFile = FileUtil.getFileFromResource("SyncResultTest-abs.properties", ObsCoreTapSyncQueryTest.class);
