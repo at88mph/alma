@@ -91,7 +91,7 @@ public class ObsCoreTapSyncErrorTest extends TapSyncErrorTest {
     }
 
     public ObsCoreTapSyncErrorTest() {
-        super(URI.create("ivo://cadc.nrc.ca/tap"));
+        super(URI.create("ivo://almascience.org/tap"));
 
         // re-use SyncError test files
         File testFile = FileUtil.getFileFromResource("SyncErrorTest-area.properties", ObsCoreTapSyncErrorTest.class);
