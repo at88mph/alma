@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Identify>
-    <repositoryName>CADC repository</repositoryName>
-    <baseURL>http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/oai</baseURL>
+    <repositoryName>ALMA repository</repositoryName>
+    <baseURL>https://almascience.org/reg/oai</baseURL>
     <protocolVersion>2.0</protocolVersion>
-    <adminEmail>cadc@nrc.ca</adminEmail>
+    <adminEmail>servicedesk@eso.org</adminEmail>
     <earliestDatestamp>2000-01-01T00:00:00Z</earliestDatestamp>
     <deletedRecord>transient</deletedRecord>
     <granularity>YYYY-MM-DDThh:mm:ssZ</granularity>
@@ -14,35 +14,35 @@
                    xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0" 
                    xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1"
                    xsi:type="vg:Registry" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-          <title >CADC Registry</title>
-          <shortName>CADC Registry</shortName>
-          <identifier>ivo://cadc.nrc.ca/registry</identifier>
+          <title>ALMA Registry</title>
+          <shortName>ALMA Registry</shortName>
+          <identifier>ivo://almascience.org/registry</identifier>
           <curation>
-            <publisher>Canadian Astronomy Data Centre</publisher>
+            <publisher>Atacama Large Millimetre Array</publisher>
             <contact>
-              <name>CADC</name>
-              <email>cadc@nrc.ca</email>
+              <name>Felix Stoehr</name>
+              <email>fstoehr@eso.org</email>
             </contact>
           </curation>
           <content>
             <subject>registry</subject>
-            <description>CADC Registry</description>
-            <referenceURL>http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg</referenceURL>
+            <description>ALMA Registry</description>
+            <referenceURL>https://almascience.org/reg</referenceURL>
             <type>Registry</type>
           </content>
           <capability standardID="ivo://ivoa.net/std/VOSI#capabilities">
             <interface xsi:type="vs:ParamHTTP" role="std">
-                <accessURL use="full">http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/capabilities</accessURL>
+                <accessURL use="full">https://almascience.org/reg/capabilities</accessURL>
             </interface>
           </capability>
           <capability standardID="ivo://ivoa.net/std/Registry" xsi:type="vg:Harvest">
             <interface role="std" xsi:type="vg:OAIHTTP">
-              <accessURL>http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/reg/oai</accessURL>
+              <accessURL>https://almascience.org/reg/oai</accessURL>
             </interface>
             <maxRecords>100</maxRecords>
           </capability>
           <full>false</full>
-          <managedAuthority xmlns="">cadc.nrc.ca</managedAuthority>
+          <managedAuthority xmlns="">almascience.org</managedAuthority>
         </ri:Resource>
     </description>
   </Identify>

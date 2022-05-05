@@ -44,7 +44,7 @@
         </init-param>
         <init-param>
             <param-name>ca.nrc.cadc.uws.server.JobManager</param-name>
-            <param-value>org.opencadc.reg.server.OAIJobManager</param-value>
+            <param-value>org.opencadc.alma.reg.server.ALMAOAIJobManager</param-value>
         </init-param>
         <init-param>
             <param-name>authHeaders</param-name>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>ivo://almascience.org</identifier>
+        <datestamp>2012-04-26T15:57:14Z</datestamp>
+      </header>
+      <metadata>
+        <ri:Resource created="2005-01-27T21:58:27Z" status="active" updated="2012-04-26T15:57:14Z"
+                     xmlns:ri="http://www.ivoa.net/xml/RegistryInterface/v1.0"
+                     xmlns:vg="http://www.ivoa.net/xml/VORegistry/v1.0"
+                     xmlns:vr="http://www.ivoa.net/xml/VOResource/v1.0"
+                     xsi:type="vg:Authority" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <title xmlns="">Atacama Large Millimetre Array</title>
+          <shortName xmlns="">ALMA</shortName>
+          <identifier xmlns="">ivo://almascience.org</identifier>
+          <curation xmlns="">
+            <publisher>Atacama Large Millimetre Array</publisher>
+            <contact>
+              <name>Felix Stoehr</name>
+              <email>fstoehr@eso.org</email>
+            </contact>
+          </curation>
+          <content xmlns="">
+            <subject>virtual observatory</subject>
+            <description>authority for ALMA</description>
+            <referenceURL>https://almascience.org</referenceURL>
+            <type>Other</type>
+            <contentLevel>General</contentLevel>
+          </content>
+          <managingOrg xmlns="">Atacama Large Millimetre Array</managingOrg>
+        </ri:Resource>
+      </metadata>
+    </record>
+  </GetRecord>

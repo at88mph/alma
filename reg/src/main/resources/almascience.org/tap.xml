@@ -2,7 +2,7 @@
   <GetRecord>
     <record>
       <header>
-        <identifier>ivo://cadc.nrc.ca/tap</identifier>
+        <identifier>ivo://almascience.org/tap</identifier>
         <datestamp>2019-04-05T21:02:00Z</datestamp>
       </header>
       <metadata>
@@ -14,9 +14,9 @@
                      xmlns:vs="http://www.ivoa.net/xml/VODataService/v1.1" 
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="vs:CatalogService" >
           <title xmlns="">CADC Table Query (TAP) Service</title>
-          <identifier xmlns="">ivo://cadc.nrc.ca/tap</identifier>
+          <identifier xmlns="">ivo://almascience.org/tap</identifier>
           <curation xmlns="">
-            <publisher ivo-id="ivo://cadc.nrc.ca/org">
+            <publisher ivo-id="ivo://almascience.org/org">
          Canadian Astronomy Data Centre
       </publisher>
             <contact>
@@ -33,22 +33,22 @@
           </content>
           <capability standardID="ivo://ivoa.net/std/VOSI#capabilities" xmlns="">
             <interface version="1.0" xsi:type="vs:ParamHTTP">
-              <accessURL use="full">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/capabilities</accessURL>
+              <accessURL use="full">https://almascience.org/tap/capabilities</accessURL>
             </interface>
           </capability>
           <capability standardID="ivo://ivoa.net/std/VOSI#availability" xmlns="">
             <interface version="1.0" xsi:type="vs:ParamHTTP">
-              <accessURL use="full">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/availability</accessURL>
+              <accessURL use="full">https://almascience.org/tap/availability</accessURL>
             </interface>
           </capability>
           <capability standardID="ivo://ivoa.net/std/VOSI#tables" xmlns="">
             <interface version="1.0" xsi:type="vs:ParamHTTP">
-              <accessURL use="full">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap/tables</accessURL>
+              <accessURL use="full">https://almascience.org/tap/tables</accessURL>
             </interface>
           </capability>
           <capability standardID="ivo://ivoa.net/std/TAP" xmlns:tr="http://www.ivoa.net/xml/TAPRegExt/v1.0" xsi:type="tr:TableAccess">
             <interface xsi:type="vs:ParamHTTP" role="std" version="1.1">
-                <accessURL use="base">https://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/tap</accessURL>
+                <accessURL use="base">https://almascience.org/tap</accessURL>
                 <securityMethod />
                 <securityMethod standardID="ivo://ivoa.net/sso#cookie" />
                 <securityMethod standardID="ivo://ivoa.net/sso#tls-with-certificate" />
