@@ -91,11 +91,14 @@ public class AlmaProperties extends PropertiesReader {
     private static final Logger LOGGER = Logger.getLogger(AlmaProperties.class);
     private static final String DEFAULT_PROPERTIES_FILE_NAME = "org.opencadc.alma.properties";
 
+    private static final int DEFAULT_MAX_UPLOAD_ROW_COUNT = 5000;
+
     static final String ALMA_REQUEST_HANDLER_SERVICE_URI = "almaRequestHandlerServiceURI";
     static final String ALMA_FILE_SODA_SERVICE_PORT = "almaFileSodaServicePort";
     static final String ALMA_DATALINK_SERVICE_URI = "almaDataLinkServiceURI";
     static final String ALMA_SODA_SERVICE_URI = "almaSODAServiceURI";
     static final String ALMA_DATAPORTAL_SERVICE_URI = "almaDataPortalServiceURI";
+    static final String ALMA_MAX_UPLOAD_ROW_COUNT = "almaMaxUploadRowCount";
     static final String ALMA_LOGGING_SERVICE_URL = "almaLoggingServiceURL";
 
 
@@ -132,6 +135,11 @@ public class AlmaProperties extends PropertiesReader {
 
     public URI getDataPortalServiceURI() {
         return ensureRequiredURI(ALMA_DATAPORTAL_SERVICE_URI);
+    }
+
+    public int getMaxUploadRowCount() {
+        return Integer.parseInt(getFirstPropertyValue(AlmaProperties.ALMA_MAX_UPLOAD_ROW_COUNT,
+                                                      Integer.toString(AlmaProperties.DEFAULT_MAX_UPLOAD_ROW_COUNT)));
     }
 
     public URL getLoggingServiceURL() {

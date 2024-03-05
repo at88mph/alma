@@ -59,8 +59,8 @@ return SDO_GEOMETRY is
     then
       counter := counter + 1;
       vertices.extend;
-      vertices(counter) := vertices(1);
 
+      vertices(counter) := vertices(1);
       counter := counter + 1;
       vertices.extend;
       vertices(counter) := vertices(2);

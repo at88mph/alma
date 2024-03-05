@@ -74,6 +74,7 @@ import ca.nrc.cadc.tap.schema.ColumnDesc;
 import ca.nrc.cadc.tap.schema.TableDesc;
 import ca.nrc.cadc.tap.schema.TapDataType;
 import org.apache.log4j.Logger;
+import org.opencadc.alma.AlmaProperties;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,7 +91,7 @@ public class ALMAUploadManager extends BasicUploadManager {
             TapConstants.TAP10_SMALLINT);
 
     public ALMAUploadManager() {
-        super(10000);
+        super(new AlmaProperties().getMaxUploadRowCount());
     }
 
     @Override
