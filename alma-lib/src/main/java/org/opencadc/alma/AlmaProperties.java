@@ -163,8 +163,15 @@ public class AlmaProperties extends PropertiesReader {
                                ? Long.parseLong(configuredUploadByteLimit)
                                : null;
 
-        return new TAPUploadLimits(byteLimit, Integer.parseInt(uploadRowLimit),
-                                   Integer.parseInt(uploadColumnLimit));
+        final Integer rowLimit = StringUtil.hasText(configuredUploadRowLimit)
+                ? Integer.parseInt(configuredUploadRowLimit)
+                : null;
+
+        final Integer columnLimit = StringUtil.hasText(configuredUploadColumnLimit)
+                ? Integer.parseInt(configuredUploadColumnLimit)
+                : null;
+
+        return new TAPUploadLimits(byteLimit, rowLimit, columnLimit);
     }
 
     URI ensureRequiredURI(final String key) {

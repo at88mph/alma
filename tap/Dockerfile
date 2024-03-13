@@ -5,6 +5,9 @@ RUN groupadd --gid 8675309 tomcat \
     && useradd --uid 8675309 --home-dir /usr/local/tomcat --shell /sbin/nologin \
         --no-create-home --no-user-group --no-log-init tomcat
 
+# Add the Oracle JDBC driver here.
+ADD https://download.oracle.com/otn-pub/otn_software/jdbc/1922/ojdbc10.jar /usr/local/tomcat/lib/ojdbc10.jar
+
 # Create expected config director for all application config.
 RUN mkdir -p config \
   && chown -R tomcat:tomcat /usr/local/tomcat

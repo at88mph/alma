@@ -84,28 +84,30 @@ import java.util.List;
 public class ALMAUploadManager extends BasicUploadManager {
     private static final Logger LOGGER = Logger.getLogger(ALMAUploadManager.class);
 
-    // TAP-1.0 xtypes that can just be dropped from ColumnDesc
-    private static final List<String> OLD_XTYPES = Arrays.asList(
+    // TAP-1.0 "xtype" values that can just be dropped from ColumnDesc
+    private static final List<String> OLD_X_TYPES = Arrays.asList(
             TapConstants.TAP10_CHAR, TapConstants.TAP10_VARCHAR,
             TapConstants.TAP10_DOUBLE, TapConstants.TAP10_REAL,
             TapConstants.TAP10_BIGINT, TapConstants.TAP10_INTEGER,
             TapConstants.TAP10_SMALLINT);
 
-    private final AlmaProperties almaProperties = new AlmaProperties();
+    private static final AlmaProperties ALMA_PROPERTIES = new AlmaProperties();
 
     public ALMAUploadManager() {
-        this(new UploadLimits(almaProperties.getTAPUploadLimits().byteLimit()))
+        super(new UploadLimits(ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().byteLimit(),
+                               ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().rowLimit(),
+                               ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().columnLimit()));
     }
 
     @Override
     protected void sanitizeTable(TableDesc td) {
         for (final ColumnDesc cd : td.getColumnDescs()) {
             final TapDataType dataType = cd.getDatatype();
-            final String xtype = dataType.xtype;
-            if (TapConstants.TAP10_TIMESTAMP.equals(xtype)) {
-                LOGGER.warn("Found old timestamp (" + xtype + ").  DALI 1.1 replaces it with \"timestamp\".");
-            } else if (OLD_XTYPES.contains(xtype)) {
-                LOGGER.warn("Found old (TAP 1.0) xtype (" + xtype + ").  It can be omitted.");
+            final String xType = dataType.xtype;
+            if (TapConstants.TAP10_TIMESTAMP.equals(xType)) {
+                LOGGER.warn("Found old timestamp (" + xType + ").  DALI 1.1 replaces it with \"timestamp\".");
+            } else if (OLD_X_TYPES.contains(xType)) {
+                LOGGER.warn("Found old (TAP 1.0) xtype (" + xType + ").  It can be omitted.");
                 dataType.xtype = null;
             }
 
