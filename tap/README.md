@@ -1,4 +1,4 @@
-# ALMA TAP (2.3.0)
+# ALMA TAP (2.3.2)
 
 [IVOA TAP](http://ivoa.net/Documents/TAP/) service for the [ALMA Science Archive](https://almascience.org).
 
@@ -21,6 +21,10 @@ $ gradle --info clean build test
 to create the `build/libs/tap.war` file.
 
 ## Configuration
+
+### Application
+
+Include a file called `org.opencadc.alma.properties` in the main configuration location (`/usr/share/tomcat/config`).
 
 ### Database
 

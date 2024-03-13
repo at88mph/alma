@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.3.2
+
+* Added limits to Upload tables.
+  * `almaTAPUploadByteLimit` - Set size of table file
+  * `almaTAPUploadRowLimit` - Set number of rows permitted
+  * `almaTAPUploadColumnLimit` - Set number of columns permitted
+
 ## 2.1.0 (July 2022)
 
  * Add asynchronous support (A+ rating from EuroVO)

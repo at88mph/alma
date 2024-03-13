@@ -1,15 +1,38 @@
-#!/bin/bash
+#!/bin/sh
 
 PROJECT_DIR=$(pwd)
 
-cd ${PROJECT_DIR}/alma-lib && gradle -i clean install
+FIRST_ARG="${1}"
+SKIP_BUILD=0
 
-for i in datalink obscore reg sia soda;
+if [ "${FIRST_ARG}" == "-*" ];
+then
+  if [ "${FIRST_ARG}" == "--skip-build" ];
+  then
+    SKIP_BUILD=1 
+    shift
+  else
+    echo "Unknown switch ${FIRST_ARG}"
+    exit 1
+  fi
+fi
+
+
+if [ ! "${SKIP_BUILD}" == 0 ];
+then
+  gradle -b ${PROJECT_DIR}/alma-lib/build.gradle -i clean publishToMavenLocal
+fi
+
+VERSION=`grep version\ = ${PROJECT_DIR}/properties.gradle | awk -F \' '{print $2}'`
+
+for i in cone data datalink obscore reg sia soda tap;
 do
-  cd ${PROJECT_DIR}/${i} && gradle -i clean build;
-  VERSION=`find build/libs -type f | head | awk -F "##" '{print $2}' | awk -F ".war" '{print $1}'`;
+  if [ ! "${SKIP_BUILD}" == 0 ];
+  then
+    gradle -b ${PROJECT_DIR}/${i}/build.gradle -i clean build;
+  fi
   echo "**";
   echo "** Building opencadc/alma-${i}:${VERSION}";
   echo "**";
-  docker build -t opencadc/alma-${i}:${VERSION} .;
+  docker build -t opencadc/alma-${i}:${VERSION} -f ${i}/Dockerfile ${i};
 done

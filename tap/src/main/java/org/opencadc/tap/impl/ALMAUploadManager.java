@@ -73,7 +73,9 @@ import ca.nrc.cadc.tap.db.TapConstants;
 import ca.nrc.cadc.tap.schema.ColumnDesc;
 import ca.nrc.cadc.tap.schema.TableDesc;
 import ca.nrc.cadc.tap.schema.TapDataType;
+import ca.nrc.cadc.tap.upload.UploadLimits;
 import org.apache.log4j.Logger;
+import org.opencadc.alma.AlmaProperties;
 
 import java.util.Arrays;
 import java.util.List;
@@ -89,8 +91,10 @@ public class ALMAUploadManager extends BasicUploadManager {
             TapConstants.TAP10_BIGINT, TapConstants.TAP10_INTEGER,
             TapConstants.TAP10_SMALLINT);
 
+    private final AlmaProperties almaProperties = new AlmaProperties();
+
     public ALMAUploadManager() {
-        super(10000);
+        this(new UploadLimits(almaProperties.getTAPUploadLimits().byteLimit()))
     }
 
     @Override

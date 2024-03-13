@@ -97,6 +97,9 @@ public class AlmaProperties extends PropertiesReader {
     static final String ALMA_SODA_SERVICE_URI = "almaSODAServiceURI";
     static final String ALMA_DATAPORTAL_SERVICE_URI = "almaDataPortalServiceURI";
     static final String ALMA_LOGGING_SERVICE_URL = "almaLoggingServiceURL";
+    static final String ALMA_TAP_UPLOAD_BYTE_LIMIT = "almaTAPUploadByteLimit";
+    static final String ALMA_TAP_UPLOAD_ROW_LIMIT = "almaTAPUploadRowLimit";
+    static final String ALMA_TAP_UPLOAD_COLUMN_LIMIT = "almaTAPUploadColumnLimit";
 
 
     public AlmaProperties() {
@@ -141,6 +144,27 @@ public class AlmaProperties extends PropertiesReader {
             throw new IllegalStateException(String.format("Property %s is not a properly formatted URL.",
                                                           ALMA_LOGGING_SERVICE_URL));
         }
+    }
+
+    /**
+     * Obtain any limits placed on upload files.
+     * @return  A TAPUploadLimits instance, or null if nothing configured for upload limits.
+     */
+    public TAPUploadLimits getTAPUploadLimits() {
+        final MultiValuedProperties allProperties = getAllProperties();
+        final String configuredUploadByteLimit =
+                allProperties.getFirstPropertyValue(AlmaProperties.ALMA_TAP_UPLOAD_BYTE_LIMIT);
+        final String configuredUploadRowLimit =
+                allProperties.getFirstPropertyValue(AlmaProperties.ALMA_TAP_UPLOAD_ROW_LIMIT);
+        final String configuredUploadColumnLimit = allProperties.getFirstPropertyValue(
+                AlmaProperties.ALMA_TAP_UPLOAD_COLUMN_LIMIT);
+
+        final Long byteLimit = StringUtil.hasText(configuredUploadByteLimit)
+                               ? Long.parseLong(configuredUploadByteLimit)
+                               : null;
+
+        return new TAPUploadLimits(byteLimit, Integer.parseInt(uploadRowLimit),
+                                   Integer.parseInt(uploadColumnLimit));
     }
 
     URI ensureRequiredURI(final String key) {
@@ -193,5 +217,8 @@ public class AlmaProperties extends PropertiesReader {
 
     RegistryClient createRegistryClient() {
         return new RegistryClient();
+    }
+
+    public record TAPUploadLimits(Long byteLimit, Integer rowLimit, Integer columnLimit) {
     }
 }
