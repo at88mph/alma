@@ -94,9 +94,10 @@ public class ALMAUploadManager extends BasicUploadManager {
     private static final AlmaProperties ALMA_PROPERTIES = new AlmaProperties();
 
     public ALMAUploadManager() {
-        super(new UploadLimits(ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().byteLimit(),
-                               ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().rowLimit(),
-                               ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().columnLimit()));
+        super(new UploadLimits(ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().byteLimit()));
+
+        uploadLimits.columnLimit = ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().columnLimit();
+        uploadLimits.rowLimit = ALMAUploadManager.ALMA_PROPERTIES.getTAPUploadLimits().rowLimit();
     }
 
     @Override

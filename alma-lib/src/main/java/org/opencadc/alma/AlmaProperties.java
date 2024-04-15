@@ -226,6 +226,6 @@ public class AlmaProperties extends PropertiesReader {
         return new RegistryClient();
     }
 
-    public record TAPUploadLimits(Long byteLimit, Integer rowLimit, Integer columnLimit) {
+    public record TAPUploadLimits(long byteLimit, Integer rowLimit, Integer columnLimit) {
     }
 }
